@@ -4985,7 +4985,7 @@ module.exports = g;
 
 "use strict";
 
-// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"de02ad7c-vue-loader-template"}!./node_modules/cache-loader/dist/cjs.js??ref--13-0!./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/loaders/templateLoader.js??ref--6!./node_modules/cache-loader/dist/cjs.js??ref--1-0!./node_modules/vue-loader/lib??vue-loader-options!./src/components/VueCanvasCompression.vue?vue&type=template&id=44d89f72&
+// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"de02ad7c-vue-loader-template"}!./node_modules/cache-loader/dist/cjs.js??ref--13-0!./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/loaders/templateLoader.js??ref--6!./node_modules/cache-loader/dist/cjs.js??ref--1-0!./node_modules/vue-loader/lib??vue-loader-options!./src/components/VueCanvasCompression.vue?vue&type=template&id=2149410a&
 var render = function render() {
   var _vm = this,
     _c = _vm._self._c;
@@ -5010,15 +5010,23 @@ var render = function render() {
     attrs: {
       "id": "compress"
     }
-  }), _c('p', [_vm._v("选择的原图片")]), _c('div', {
+  }, [_vm.compressSrc ? _c('img', {
     attrs: {
-      "id": "original"
+      "src": _vm.compressSrc,
+      "alt": "压缩后图片"
     }
-  })]) : _vm._e()]);
+  }) : _vm._e()]), _c('p', [_vm._v("选择的原图片")]), _c('div', {
+    staticClass: "original"
+  }, [_vm.originalSrc ? _c('img', {
+    attrs: {
+      "src": _vm.originalSrc,
+      "alt": "压缩前图片"
+    }
+  }) : _vm._e()])]) : _vm._e()]);
 };
 var staticRenderFns = [];
 
-// CONCATENATED MODULE: ./src/components/VueCanvasCompression.vue?vue&type=template&id=44d89f72&
+// CONCATENATED MODULE: ./src/components/VueCanvasCompression.vue?vue&type=template&id=2149410a&
 
 // EXTERNAL MODULE: ./node_modules/regenerator-runtime/runtime.js
 var runtime = __webpack_require__("96cf");
@@ -5132,31 +5140,37 @@ function base64UrlToFile(dataurl, filename) {
 /* harmony default export */ var VueCanvasCompressionvue_type_script_lang_js_ = ({
   name: 'VueCanvasCompression',
   props: {
+    // 可选的图片类型
     accept: {
       require: false,
       type: String,
       default: 'image/*'
     },
+    // 压缩后输出的图片宽度
     width: {
       require: false,
       type: Number,
       default: 0
     },
+    // 压缩比例
     quality: {
       require: false,
       type: Number,
       default: 1 // 0到1
     },
 
+    // 是否展示压缩前后的图片
     preview: {
       require: false,
       type: Boolean,
-      default: true
+      default: false
     }
   },
   data: function data() {
     return {
-      imageEl: null
+      imageEl: null,
+      compressSrc: '',
+      originalSrc: ''
     };
   },
   created: function created() {},
@@ -5183,11 +5197,10 @@ function base64UrlToFile(dataurl, filename) {
         var reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = function () {
+          _this.preview && (_this.originalSrc = this.result);
           var imgFalse = document.createElement('img');
           imgFalse.setAttribute('style', 'display:none;');
           imgFalse.setAttribute('src', this.result);
-          var originalDom = document.querySelector('#original');
-          originalDom && originalDom.appendChild(imgFalse);
           imgFalse.onload = function () {
             _this.imgOrientation = _this.getPhotoOrientation(imgFalse);
             _this.compress(blob, file);
@@ -5222,7 +5235,6 @@ function base64UrlToFile(dataurl, filename) {
           // 修复IOS
           if (navigator.userAgent.match(/iphone/i)) {
             // 宽高互换
-            console.log(_this.imgOrientation);
             if (_this.imgOrientation == '6') {
               //设置canvas宽高旋转90°
               canvas.setAttribute('width', h);
@@ -5478,20 +5490,14 @@ function base64UrlToFile(dataurl, filename) {
             var encoder = new JPEGEncoder();
             base64 = encoder.encode(ctx.getImageData(0, 0, w, h), _this.quality * 100 || 80);
           }
-          // 生成结果
-          // var result = {
-          //   base64: base64,
-          //   name: file.name,
-          //   clearBase64: base64.substr(base64.indexOf(',') + 1)
-          // }
-
-          // 执行后函数
+          // emit出去
           _this.$emit('success', {
             base64: base64,
             name: file.name,
             file: base64UrlToFile(base64, file.name),
             blob: convertBase64UrlToBlob(base64)
           });
+          _this.compressSrc = base64;
         };
       } catch (error) {
         this.$emit('error', {

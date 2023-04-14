@@ -4,6 +4,8 @@
       @getOriginal="getOriginal"
       @success="success"
       @error="error"
+      :preview="true"
+      :width='200'
     />
   </div>
 </template>
@@ -18,10 +20,10 @@ export default {
   },
   methods: {
     getOriginal: function (file) {
-      console.log('getOriginal', file);
+      console.log('原始图片信息', file);
     },
     success(file) {
-      console.log('success', file);
+      console.log('压缩后图片信息', file);
     },
     error(e) {
       console.log(e);

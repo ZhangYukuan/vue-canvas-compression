@@ -8,9 +8,13 @@
     </div>
     <div v-if="preview">
       <p>压缩后的图片</p>
-      <div id="compress"></div>
+      <div id="compress">
+        <img v-if="compressSrc" :src="compressSrc" alt="压缩后图片">
+      </div>
       <p>选择的原图片</p>
-      <div id="original"></div>
+      <div class="original">
+        <img v-if="originalSrc" :src="originalSrc" alt="压缩前图片">
+      </div>
     </div>
   </div>
 </template>
@@ -20,30 +24,36 @@ import { base64UrlToFile, convertBase64UrlToBlob } from '@/utils/index.js'
 export default {
   name: 'VueCanvasCompression',
   props: {
+    // 可选的图片类型
     accept: {
       require: false,
       type: String,
       default: 'image/*'
     },
+    // 压缩后输出的图片宽度
     width: {
       require: false,
       type: Number,
       default: 0
     },
+    // 压缩比例
     quality: {
       require: false,
       type: Number,
       default: 1, // 0到1
     },
+    // 是否展示压缩前后的图片
     preview: {
       require: false,
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
   data: function () {
     return {
-      imageEl: null
+      imageEl: null,
+      compressSrc:'',
+      originalSrc:''
     }
   },
   created: function () {
@@ -70,11 +80,10 @@ export default {
         var reader = new FileReader()
         reader.readAsDataURL(file)
         reader.onload = function () {
+          _this.preview && (_this.originalSrc = this.result)
           var imgFalse = document.createElement('img')
           imgFalse.setAttribute('style', 'display:none;');
           imgFalse.setAttribute('src', this.result);
-          const originalDom = document.querySelector('#original')
-          originalDom && originalDom.appendChild(imgFalse);
           imgFalse.onload = function () {
             _this.imgOrientation = _this.getPhotoOrientation(imgFalse)
             _this.compress(blob, file)
@@ -109,7 +118,6 @@ export default {
           // 修复IOS
           if (navigator.userAgent.match(/iphone/i)) {
             // 宽高互换
-            console.log(_this.imgOrientation)
             if (_this.imgOrientation == '6') {
               //设置canvas宽高旋转90°
               canvas.setAttribute('width', h)
@@ -145,20 +153,14 @@ export default {
             var encoder = new JPEGEncoder()
             base64 = encoder.encode(ctx.getImageData(0, 0, w, h), _this.quality * 100 || 80)
           }
-          // 生成结果
-          // var result = {
-          //   base64: base64,
-          //   name: file.name,
-          //   clearBase64: base64.substr(base64.indexOf(',') + 1)
-          // }
-
-          // 执行后函数
+          // emit出去
           _this.$emit('success', {
             base64,
             name: file.name,
             file: base64UrlToFile(base64, file.name),
             blob: convertBase64UrlToBlob(base64)
           })
+          _this.compressSrc = base64
         }
       } catch (error) {
         this.$emit('error', {
