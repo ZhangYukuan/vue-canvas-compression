@@ -35,11 +35,9 @@ $ npm install --save vue-canvas-compression
 ```javascript
 //main.js
 import Vue from 'vue'
-import vcc from 'vue-canvas-compression'
+import VueCanvasCompression from 'vue-canvas-compression'
 
-// 导入默认样式
-import 'vue-canvas-compression/dist/VueDraggableResizable.css'
-Vue.component('vcc', vcc)
+Vue.component('VueCanvasCompression', VueCanvasCompression)
 ```
 
 局部注册组件
@@ -47,22 +45,25 @@ Vue.component('vcc', vcc)
 ```vue
 <template>
   <div id="app">
-    <vcc
+    <vue-canvas-compression
       @getOriginal="getOriginal"
       @success="success"
       @error="error"
       :preview="true"
       :width='200'
     >
-    <button>上传图片</button>
-    </vcc>
+      <button>上传图片</button>
+    </vue-canvas-compression>
   </div>
 </template>
 
 <script>
-
+import VueCanvasCompression from 'vue-canvas-compression'
 export default {
   name: 'app',
+  components:{
+    VueCanvasCompression
+  },
   methods: {
     getOriginal: function (file) {
       console.log('原始图片信息', file);
