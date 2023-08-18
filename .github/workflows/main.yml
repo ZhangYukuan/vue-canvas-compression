@@ -11,6 +11,7 @@ jobs:
     - name: buildAndDeploy
       uses: JamesIves/github-pages-deploy-action@v4
       with:
-        token: ${{ secrets.ACCESS_TOKEN }}
-        BRANCH: main
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        BRANCH: gh-pages
         FOLDER: dist
+        BUILD_SCRIPT: npm install && npm run build # 执行的命令
